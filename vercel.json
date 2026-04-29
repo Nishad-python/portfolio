@@ -1,0 +1,9 @@
+{
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/porotofilo8/",
+      "permanent": false
+    }
+  ]
+}
