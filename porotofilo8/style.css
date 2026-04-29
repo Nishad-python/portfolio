@@ -389,9 +389,9 @@ header {
   transition: 0.3s ease;
 }
 
-.ul-list li a {
+.ul-list li a,
+.ul-list li span {
   font-family: "Montserrat", sans-serif;
-  text-decoration: none;
   color: #f5c7d3;
   font-size: 14px;
   transition: 0.3s;
@@ -545,7 +545,8 @@ hr {
   list-style: none;
 }
 
-.follow ul a {
+.follow ul a,
+.follow ul span {
   text-decoration: none;
   color: #ff9db3;
   transition: 0.3s;
@@ -653,7 +654,8 @@ hr {
     margin-bottom: 15px;
 }
 
-.project-card .skills a {
+.project-card .skills a,
+.project-card .skills span {
     display: inline-block;
     margin: 4px 6px 0 0;
     padding: 6px 12px;
