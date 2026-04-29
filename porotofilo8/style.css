@@ -4,6 +4,10 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     background:
         radial-gradient(circle at 50% 15%, rgba(160,40,70,.55), transparent 60%),
@@ -392,6 +396,7 @@ header {
 .ul-list li a,
 .ul-list li span {
   font-family: "Montserrat", sans-serif;
+  text-decoration: none;
   color: #f5c7d3;
   font-size: 14px;
   transition: 0.3s;
