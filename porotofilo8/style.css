@@ -15,6 +15,7 @@ body {
         linear-gradient(180deg, #0a050a, #12060c);
     color: #eaeaea;
     margin: 0;
+    font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 
@@ -37,6 +38,7 @@ body {
     padding: 42px;
     backdrop-filter: blur(28px);
     box-shadow: 0 0 90px rgba(255,0,80,.28);
+    border: 1px solid rgba(255, 120, 160, 0.16);
 }
 
 .top-tags {
@@ -104,7 +106,7 @@ body {
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    transition: .3s;
+    transition: background .3s, box-shadow .3s, transform .3s;
 }
 
 .btn i {
@@ -114,6 +116,7 @@ body {
 .btn:hover {
     background: rgba(255,77,109,0.15);
     box-shadow: 0 0 16px rgba(255,77,109,.45);
+    transform: translateY(-2px);
 }
 
 .site-link {
@@ -382,6 +385,12 @@ header {
   border: 1px solid rgba(255, 80, 110, 0.25);
 
   box-shadow: 0 8px 25px rgba(255, 0, 80, 0.25);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.ul-list:hover {
+  box-shadow: 0 12px 35px rgba(255, 0, 80, 0.35);
+  border-color: rgba(255, 80, 110, 0.42);
 }
 
 .ul-list li {
@@ -566,6 +575,13 @@ hr {
   width: 400px;
   border-radius: 15px;
   box-shadow: 0 0 25px rgba(255, 80, 120, 0.4);
+  border: 1px solid rgba(255, 120, 160, 0.35);
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+
+.home img:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 0 38px rgba(255, 80, 120, 0.65);
 }
 
 /* ===== PROJECT SECTION ===== */
@@ -633,6 +649,18 @@ hr {
     backdrop-filter: blur(12px);
     box-shadow: 0 0 25px rgba(255, 80, 120, 0.15);
     transition: 0.35s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.project-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 0%, rgba(255, 125, 165, 0.08) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
 }
 
 .project-card:hover {
@@ -640,11 +668,20 @@ hr {
     box-shadow: 0 0 35px rgba(255, 80, 120, 0.45);
 }
 
+.project-card:hover::after {
+    opacity: 1;
+}
+
 .project-card img {
     width: 100%;
     border-radius: 14px;
     margin-bottom: 15px;
     border: 1px solid rgba(255, 80, 120, 0.25);
+    transition: transform 0.35s ease;
+}
+
+.project-card:hover img {
+    transform: scale(1.03);
 }
 
 .project-card h3 {
@@ -685,6 +722,7 @@ hr {
     background: linear-gradient(135deg, #ff4d6d, #7a0c2e);
     text-decoration: none;
     transition: 0.3s ease;
+    border: 1px solid rgba(255, 195, 215, 0.18);
 }
 
 .project-card .btn:hover {
@@ -761,6 +799,12 @@ hr {
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 80, 120, 0.25);
     box-shadow: 0 0 25px rgba(255, 80, 120, 0.25);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.photo-container:hover {
+    transform: rotate(-1deg) translateY(-5px);
+    box-shadow: 0 0 34px rgba(255, 80, 120, 0.45);
 }
 
 .photo-container img {
@@ -1033,6 +1077,12 @@ hr {
   padding: 35px;
   backdrop-filter: blur(12px);
   box-shadow: 0 0 30px rgba(255, 80, 120, 0.25);
+  transition: transform .3s ease, box-shadow .3s ease;
+}
+
+.contact-form:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 38px rgba(255, 80, 120, 0.4);
 }
 
 /* INPUTS */
@@ -1080,7 +1130,75 @@ hr {
     color: #fff;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1200px) {
+  .home,
+  .about,
+  .project,
+  .services {
+    margin: 130px 100px;
+  }
+
+  .info-home h1 {
+    font-size: 58px;
+  }
+
+  .info-home h3 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 992px) {
+  .top-tags {
+    flex-wrap: wrap;
+  }
+
+  .content {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .right {
+    width: 100%;
+  }
+
+  .home,
+  .about,
+  .project,
+  .services {
+    margin: 120px 60px;
+  }
+
+  .home-container,
+  .about-info2 {
+    flex-direction: column;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+
+  .home img,
+  .photo-container img {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .info-home h1 {
+    font-size: 48px;
+  }
+
+  .info-home h3 {
+    font-size: 28px;
+  }
+
+  .info-p2 {
+    flex-wrap: wrap;
+    gap: 0.7rem;
+  }
+
+  .ul-list {
+    gap: 1.2rem;
+    padding: 10px 16px;
+  }
+
   .contact-content {
     grid-template-columns: 1fr;
     gap: 50px;
@@ -1093,6 +1211,146 @@ hr {
 
   .social-links {
     justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  #intro {
+    height: auto;
+    min-height: 100vh;
+    padding: 90px 0 40px;
+  }
+
+  .card {
+    padding: 26px;
+    border-radius: 20px;
+  }
+
+  .left h1 {
+    font-size: 38px;
+  }
+
+  .desc {
+    font-size: 14px;
+  }
+
+  .buttons {
+    flex-wrap: wrap;
+  }
+
+  .orbit-box {
+    width: 200px;
+    height: 200px;
+  }
+
+  .core {
+    inset: 42px;
+  }
+
+  .stats {
+    flex-direction: column;
+  }
+
+  .div-list {
+    padding: 12px 0;
+  }
+
+  .ul-list {
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-radius: 18px;
+  }
+
+  .ul-list li {
+    padding: 6px 10px;
+  }
+
+  .ul-list li a {
+    font-size: 13px;
+  }
+
+  .home,
+  .about,
+  .project,
+  .services {
+    margin: 95px 24px;
+  }
+
+  .home-p {
+    font-size: 12px;
+  }
+
+  .info-home h1 {
+    font-size: 36px;
+    line-height: 1.2;
+  }
+
+  .info-home h3 {
+    font-size: 21px;
+    line-height: 1.35;
+  }
+
+  .projects-container,
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card,
+  .service-card {
+    padding: 18px;
+  }
+
+  .project-card .btns {
+    flex-wrap: wrap;
+  }
+
+  #contact {
+    padding: 80px 24px;
+  }
+
+  .contact-form {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .main {
+    width: 94%;
+  }
+
+  .left h1 {
+    font-size: 31px;
+  }
+
+  .info-home h1 {
+    font-size: 31px;
+  }
+
+  .info-home h3 {
+    font-size: 18px;
+  }
+
+  .project h1,
+  .services h1 {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .about h3 {
+    font-size: 24px;
+  }
+
+  .project p,
+  .services p,
+  .about-text p {
+    font-size: 13px;
+  }
+
+  .service-icon {
+    width: 68px;
+    height: 68px;
+    font-size: 1.7rem;
   }
 }
 
