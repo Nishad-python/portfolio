@@ -486,6 +486,11 @@ header {
   border: none;
   border-radius: 12px;
   padding: 12px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font: inherit;
   cursor: pointer;
   transition: 0.3s;
   box-shadow: 0 0 15px rgba(255, 80, 120, 0.4);
@@ -501,6 +506,11 @@ header {
   border: 2px solid #ff4d6d;
   border-radius: 12px;
   padding: 12px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font: inherit;
   color: #ff4d6d;
   cursor: pointer;
   transition: 0.3s;

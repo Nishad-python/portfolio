@@ -147,7 +147,7 @@
                 </div>
                 <div class="btnn">
                     <button class="btn-home1"><i class="fa-solid fa-arrow-right"></i> Hire Me</button>
-                    <button class="btn-home2"><i class="fa-solid fa-download"></i> Download CV</button>
+                    <a class="btn-home2" href="files/MOSFET_ML_Paper_FINAL.pdf" target="_blank" rel="noopener" download><i class="fa-solid fa-download"></i> Download CV</a>
                 </div>
                 <div class="hhr">
                     <hr>
@@ -419,7 +419,10 @@
                         </div>
                     </div>
                     <div class="contact-form slide-in-right">
-                        <form id="contact-form">
+                        <form id="contact-form" action="https://formsubmit.co/nishadathalye24@gmail.com" method="POST">
+                            <input type="hidden" name="_subject" value="New portfolio contact form message">
+                            <input type="hidden" name="_captcha" value="false">
+                            <input type="hidden" name="_template" value="table">
                             <div class="form-group">
                                 <input type="text" placeholder="Your Name" required name="user_name">
                             </div>
