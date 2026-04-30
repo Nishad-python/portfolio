@@ -715,7 +715,7 @@ body::after{
     <!-- Instructions -->
     <div id="dock-instructions" style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap;">
       <div style="font-size:.62rem;letter-spacing:.15em;color:rgba(0,245,255,.5);text-transform:uppercase;">
-        WASD / ARROWS — THRUST &nbsp;·&nbsp; Q/E — ROTATE &nbsp;·&nbsp; ALIGN WITH PORT TO DOCK
+        CINEMATIC INTRO IN PROGRESS &nbsp;·&nbsp; ESTABLISHING ISS LINK &nbsp;·&nbsp; STANDBY
       </div>
     </div>
 
@@ -770,6 +770,7 @@ body::after{
   const ctx      = canvas.getContext('2d');
   const chatterEl = document.getElementById('dock-chatter');
   document.body.style.overflow = 'hidden';
+  const AUTO_CINEMATIC = true;
 
   let W, H;
   function resize(){
@@ -938,11 +939,13 @@ body::after{
 
   // ── Input ──────────────────────────────────────────────
   const keys = new Set();
-  window.addEventListener('keydown', e=>{
-    keys.add(e.key.toLowerCase());
-    e.preventDefault();
-  });
-  window.addEventListener('keyup', e=> keys.delete(e.key.toLowerCase()));
+  if(!AUTO_CINEMATIC){
+    window.addEventListener('keydown', e=>{
+      keys.add(e.key.toLowerCase());
+      e.preventDefault();
+    });
+    window.addEventListener('keyup', e=> keys.delete(e.key.toLowerCase()));
+  }
 
   // ── Physics ────────────────────────────────────────────
   const THRUST = 0.08;
@@ -1136,7 +1139,9 @@ body::after{
     // ISS slow drift
     ISS.angle = Math.sin(t*0.08)*0.04;
 
-    physics();
+    if(!AUTO_CINEMATIC){
+      physics();
+    }
     const portInfo = checkDock();
     if(portInfo.inRange && portInfo.aligned && !docked) spawnSparks();
 
@@ -1155,6 +1160,14 @@ body::after{
   }
 
   resize(); mkStars(); initShip(); loop();
+  if(AUTO_CINEMATIC){
+    showChatter('HOUSTON: AUTOMATED DOCKING SEQUENCE INITIATED.');
+    setTimeout(()=>showChatter('ISS: APPROACH VECTOR LOCKED. PREPARE FOR LINK.'), 3000);
+    setTimeout(()=>showChatter('CAPCOM: HARD DOCK CONFIRMED. OPENING PORTFOLIO.'), 6200);
+    setTimeout(()=>{
+      if(!docked) triggerDockSuccess();
+    }, 8500);
+  }
 })();
 </script>
 
