@@ -745,10 +745,14 @@ body::after{
 #landing-diamond.show{opacity:1;transform:rotate(45deg) scale(1)}
 #landing-enter{opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease;background:transparent;color:var(--neon);border:1px solid var(--neon);padding:.8rem 1.4rem;font-family:'Share Tech Mono',monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
 #landing-enter.show{opacity:1;transform:translateY(0)}
+#landing-enter:focus-visible{outline:2px solid #9eefff;outline-offset:4px;box-shadow:0 0 0 6px rgba(0,245,255,.18)}
 #landing-core{
   position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%);
   border-radius:50%;background:radial-gradient(circle,#c9eeff 0,#65d8ff 55%,transparent 90%);
   box-shadow:0 0 20px rgba(101,216,255,.7),0 0 45px rgba(101,216,255,.45);opacity:.8;pointer-events:none;
+}
+@media (prefers-reduced-motion: reduce){
+  #landing-diamond,#landing-enter{transition:none}
 }
 </style>
 
@@ -770,6 +774,7 @@ body::after{
   const ctx=c.getContext('2d');
   const diamond=document.getElementById('landing-diamond');
   const enterBtn=document.getElementById('landing-enter');
+  const reduceMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!intro||!c||!ctx||!diamond||!enterBtn) return;
   document.body.style.overflow='hidden';
 
@@ -840,14 +845,29 @@ body::after{
   addEventListener('resize',()=>{resize();makeStars();});
   resize(); makeStars(); loop();
 
-  setTimeout(()=>diamond.classList.add('show'),900);
-  setTimeout(()=>enterBtn.classList.add('show'),1700);
+  const revealDelay = reduceMotion ? 0 : 900;
+  const buttonDelay = reduceMotion ? 60 : 1700;
+  setTimeout(()=>diamond.classList.add('show'),revealDelay);
+  setTimeout(()=>{
+    enterBtn.classList.add('show');
+    enterBtn.focus();
+  },buttonDelay);
 
-  enterBtn.addEventListener('click',()=>{
+  function finishIntro(){
+    if(intro.dataset.done) return;
     intro.dataset.done='1';
     intro.style.transition='opacity 1s ease';
     intro.style.opacity='0';
     setTimeout(()=>{intro.remove();document.body.style.overflow='auto';},1000);
+  }
+
+  enterBtn.addEventListener('click', finishIntro);
+  document.addEventListener('keydown',(e)=>{
+    if(intro.dataset.done) return;
+    if(e.key==='Enter' || e.key===' ' || e.key==='Escape'){
+      e.preventDefault();
+      finishIntro();
+    }
   });
 })();
 </script>
