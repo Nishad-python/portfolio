@@ -732,50 +732,78 @@ body::after{
 </head>
 <body>
 
-<!-- Video intro cinematic -->
-<div id="video-intro" style="position:fixed;inset:0;z-index:99999;background:#000;overflow:hidden;">
-  <video id="intro-video" autoplay muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;will-change:transform;animation:introCornerSweep 1.25s linear forwards;">
-    <source src="files/23882-338327769.mp4" type="video/mp4">
-  </video>
-  <div id="intro-vignette" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75),transparent 45%,rgba(0,0,0,0.55));pointer-events:none;"></div>
-  <div id="intro-fade" style="position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity 1.8s ease;"></div>
-  <div id="intro-welcome" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:clamp(1.1rem,3vw,2rem);letter-spacing:.2em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity 1.4s ease;text-shadow:0 0 22px rgba(255,255,255,.65);pointer-events:none;">Welcome to my website</div>
-</div>
+<!-- Interactive landing intro -->
 <style>
-@keyframes introCornerSweep{
-  0%   {transform:translate(-20vw,-16vh);}
-  70%  {transform:translate(20vw,16vh);}
-  100% {transform:translate(0,0);}
-}
+#landing-intro{position:fixed;inset:0;z-index:99999;background:#02040d;overflow:hidden}
+#landing-canvas{position:absolute;inset:0}
+#landing-vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,transparent 20%,rgba(0,0,0,.62));pointer-events:none}
+#landing-content{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;text-align:center}
+#landing-title{font-family:'Orbitron',monospace;font-weight:800;letter-spacing:.2em;color:#fff;font-size:clamp(1.4rem,3.5vw,2.8rem);text-shadow:0 0 20px rgba(0,245,255,.25)}
+#landing-sub{font-family:'Share Tech Mono',monospace;letter-spacing:.16em;color:rgba(200,220,255,.72);font-size:clamp(.65rem,1.2vw,.9rem)}
+#landing-diamond{width:84px;height:84px;transform:rotate(45deg) scale(.75);border:1px solid rgba(0,245,255,.7);box-shadow:0 0 24px rgba(0,245,255,.32),inset 0 0 20px rgba(0,245,255,.12);opacity:0;transition:opacity .6s ease,transform .8s ease;background:linear-gradient(135deg,rgba(0,245,255,.12),rgba(123,47,255,.15))}
+#landing-diamond::after{content:'';position:absolute;inset:18px;border:1px solid rgba(0,245,255,.5)}
+#landing-diamond.show{opacity:1;transform:rotate(45deg) scale(1)}
+#landing-enter{opacity:0;transform:translateY(10px);transition:opacity .45s ease,transform .45s ease;background:transparent;color:var(--neon);border:1px solid var(--neon);padding:.8rem 1.4rem;font-family:'Share Tech Mono',monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+#landing-enter.show{opacity:1;transform:translateY(0)}
 </style>
+
+<div id="landing-intro">
+  <canvas id="landing-canvas"></canvas>
+  <div id="landing-vignette"></div>
+  <div id="landing-content">
+    <div id="landing-title">NISHAD ATHALYE</div>
+    <div id="landing-sub">Interactive landing initialized</div>
+    <div id="landing-diamond"></div>
+    <button id="landing-enter">Enter Website</button>
+  </div>
+</div>
 <script>
 (function(){
-  const overlay = document.getElementById('video-intro');
-  const video = document.getElementById('intro-video');
-  const welcome = document.getElementById('intro-welcome');
-  const fadeLayer = document.getElementById('intro-fade');
-  if(!overlay || !video){ return; }
-  document.body.style.overflow = 'hidden';
-  let finished = false;
+  const intro=document.getElementById('landing-intro');
+  const c=document.getElementById('landing-canvas');
+  const ctx=c.getContext('2d');
+  const diamond=document.getElementById('landing-diamond');
+  const enterBtn=document.getElementById('landing-enter');
+  if(!intro||!c||!ctx||!diamond||!enterBtn) return;
+  document.body.style.overflow='hidden';
 
-  function endIntro(){
-    if(finished) return;
-    finished = true;
-    if(fadeLayer) fadeLayer.style.opacity = '0.72';
-    if(welcome) welcome.style.opacity = '1';
-    setTimeout(()=>{
-      overlay.style.transition = 'opacity 1.6s ease';
-      overlay.style.opacity = '0';
-      setTimeout(()=>{
-        overlay.remove();
-        document.body.style.overflow = 'auto';
-      }, 1700);
-    }, 1300);
+  let W=0,H=0,mx=0,my=0,t=0;
+  const stars=[];
+  function resize(){W=c.width=innerWidth;H=c.height=innerHeight;mx=W/2;my=H/2;}
+  function makeStars(){
+    stars.length=0;
+    for(let i=0;i<220;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.4+0.2,a:Math.random()*0.8+0.2,s:Math.random()*0.2+0.03});
+  }
+  function loop(){
+    t+=0.01;
+    ctx.clearRect(0,0,W,H);
+    const bg=ctx.createRadialGradient(W*0.5,H*0.45,0,W*0.5,H*0.45,Math.max(W,H)*0.85);
+    bg.addColorStop(0,'#09122c'); bg.addColorStop(1,'#02040d');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    for(const s of stars){
+      s.y+=s.s; if(s.y>H){s.y=0; s.x=Math.random()*W;}
+      const px=s.x+(mx-W/2)*0.01, py=s.y+(my-H/2)*0.01;
+      ctx.globalAlpha=s.a*(0.55+0.45*Math.sin(t*2+s.x*0.01));
+      ctx.fillStyle='rgba(220,230,255,1)';
+      ctx.beginPath(); ctx.arc(px,py,s.r,0,Math.PI*2); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    if(!intro.dataset.done) requestAnimationFrame(loop);
   }
 
-  video.addEventListener('ended', endIntro);
-  video.addEventListener('error', endIntro);
-  setTimeout(endIntro, 20000);
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  addEventListener('resize',()=>{resize();makeStars();});
+  resize(); makeStars(); loop();
+
+  setTimeout(()=>diamond.classList.add('show'),900);
+  setTimeout(()=>enterBtn.classList.add('show'),1700);
+
+  enterBtn.addEventListener('click',()=>{
+    intro.dataset.done='1';
+    intro.style.transition='opacity 1s ease';
+    intro.style.opacity='0';
+    setTimeout(()=>{intro.remove();document.body.style.overflow='auto';},1000);
+  });
 })();
 </script>
 
