@@ -696,82 +696,91 @@ body::after{
 </head>
 <body>
 
-<!-- Startup cinematic (user-provided GSAP launch) -->
-<style>
-#intro{position:fixed;inset:0;overflow:hidden;background:#000;z-index:99999}
-#intro canvas{position:fixed;inset:0;display:block}
-#bg{z-index:0}
-#main{z-index:1}
-#ui{position:fixed;inset:0;z-index:10;pointer-events:none;font-family:'Share Tech Mono',monospace}
-#ui::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px)}
-.brk{position:absolute;width:24px;height:24px;border-color:rgba(0,255,140,.4);border-style:solid}
-.tl{top:20px;left:20px;border-width:2px 0 0 2px}
-.tr{top:20px;right:20px;border-width:2px 2px 0 0}
-.bl{bottom:20px;left:20px;border-width:0 0 2px 2px}
-.br{bottom:20px;right:20px;border-width:0 2px 2px 0}
-.hud{position:absolute;font-size:10.5px;color:rgba(0,255,140,.55);line-height:2;letter-spacing:.1em}
-.hud.tl{top:26px;left:48px}.hud.tr{top:26px;right:48px;text-align:right}
-.hud.bl{bottom:26px;left:48px}.hud.br{bottom:26px;right:48px;text-align:right}
-#pw{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);width:180px;text-align:center}
-#pl{font-size:9.5px;color:rgba(0,255,140,.4);letter-spacing:.35em;margin-bottom:4px}
-#pt{height:1.5px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
-#pf{height:100%;width:0%;background:linear-gradient(90deg,#00ff8c,#00cfff)}
-#stage{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;width:90%}
-#name{font-family:'Orbitron',monospace;font-size:clamp(34px,7.5vw,90px);font-weight:900;color:#fff;letter-spacing:.22em;opacity:0;text-shadow:0 0 30px rgba(255,255,255,.5)}
-#tag{font-size:clamp(9px,1.4vw,12px);color:rgba(0,255,140,.8);letter-spacing:.45em;text-transform:uppercase;opacity:0;margin-top:8px}
-#cd{font-family:'Orbitron',monospace;font-size:clamp(60px,13vw,130px);font-weight:900;color:#fff;opacity:0;margin-top:10px;text-shadow:0 0 40px rgba(255,140,30,.5)}
-#flash{position:fixed;inset:0;background:#fff;opacity:0;z-index:20;pointer-events:none}
-#outro{position:fixed;inset:0;background:#000;opacity:0;z-index:30;pointer-events:none;display:flex;align-items:center;justify-content:center}
-#ot{font-family:'Orbitron',monospace;font-size:clamp(9px,1.2vw,13px);color:rgba(255,255,255,.45);letter-spacing:.55em;text-transform:uppercase}
-</style>
-
-<div id="intro">
-  <canvas id="bg"></canvas>
-  <canvas id="main"></canvas>
-  <div id="flash"></div>
-  <div id="ui">
-    <div class="brk tl"></div><div class="brk tr"></div><div class="brk bl"></div><div class="brk br"></div>
-    <div class="hud tl">SYS : ARMED<br>FUEL : 100.0%<br>TRAJ : NOMINAL</div>
-    <div class="hud tr">LAT : 19.0760° N<br>LON : 72.8777° E<br>ALT : 14 m</div>
-    <div class="hud bl">MISSION : NISHAD-01<br>PAYLOAD : PORTFOLIO<br>STATUS : ACTIVE</div>
-    <div class="hud br">ENGINE : VLSI-X9<br>THRUST : 7.6 MN<br>STAGE : 1 / 1</div>
-    <div id="pw"><div id="pl">LAUNCH SEQUENCE</div><div id="pt"><div id="pf"></div></div></div>
-    <div id="stage">
-      <div id="name">NISHAD</div>
-      <div id="tag">Web Developer · VLSI Research · Mumbai</div>
-      <div id="cd"></div>
-    </div>
+<!-- Docking cinematic intro -->
+<div id="dock-overlay" style="position:fixed;inset:0;z-index:99999;background:#03040a;overflow:hidden;">
+  <canvas id="dock-canvas" style="position:absolute;inset:0;"></canvas>
+  <div style="position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;font-family:'Orbitron',monospace;pointer-events:none;">
+    <div style="font-size:.6rem;letter-spacing:.3em;color:rgba(0,245,255,.45);text-transform:uppercase;">NISHAD-ATHALYE.EXE · DOCKING SEQUENCE</div>
+    <div style="font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:.1em;margin-top:.4rem;">AUTOMATED ISS APPROACH</div>
   </div>
-  <div id="outro"><div id="ot">Entering Portfolio…</div></div>
+  <div id="dock-status" style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.14em;color:rgba(0,245,255,.6);text-transform:uppercase;white-space:nowrap;pointer-events:none;">CINEMATIC IN PROGRESS · APPROACHING DOCKING PORT · STANDBY</div>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
 (function(){
-'use strict';
-const bgC=document.getElementById('bg'), C=document.getElementById('main');
-const bgX=bgC.getContext('2d'), ctx=C.getContext('2d');
-let W,H,CX,groundY,rocketBaseY; let running=true,lastT=0,rocketY=0,launchSpeed=0,flame=0,shake=0,isLaunched=false;
-const particles=[];
-function resize(){W=bgC.width=C.width=innerWidth;H=bgC.height=C.height=innerHeight;CX=W/2;groundY=H*0.82;rocketBaseY=groundY;drawBackground();}
-addEventListener('resize',resize);
-const stars=[]; function initStars(){stars.length=0;for(let i=0;i<700;i++)stars.push({x:Math.random()*W,y:Math.random()*H*0.85,r:Math.random()*1.4+0.2,a:Math.random()*0.7+0.3,tw:Math.random()*6.28});}
-function drawBackground(){const g=bgX.createLinearGradient(0,0,0,H);g.addColorStop(0,'#000005');g.addColorStop(1,'#0a0a00');bgX.fillStyle=g;bgX.fillRect(0,0,W,H);initStars();stars.forEach(s=>{bgX.beginPath();bgX.arc(s.x,s.y,s.r,0,6.28);bgX.fillStyle=`rgba(255,255,255,${s.a})`;bgX.fill();});bgX.fillStyle='#0d1208';bgX.fillRect(0,groundY-2,W,H-groundY+2);}
-function drawRocket(cx,baseY){ctx.save();ctx.translate(cx,baseY);const rw=W*0.038,rh=H*0.34;ctx.fillStyle='#ddd';ctx.beginPath();ctx.moveTo(-rw,0);ctx.lineTo(-rw,-rh*0.72);ctx.lineTo(0,-rh);ctx.lineTo(rw,-rh*0.72);ctx.lineTo(rw,0);ctx.closePath();ctx.fill();ctx.fillStyle='#222';ctx.beginPath();ctx.moveTo(-rw*0.5,-rh*0.72);ctx.quadraticCurveTo(0,-rh,rw*0.5,-rh*0.72);ctx.closePath();ctx.fill();ctx.fillStyle='#cc2200';ctx.fillRect(-rw,-rh*0.52,rw*2,rh*0.02);ctx.fillStyle='#9cf';ctx.beginPath();ctx.arc(0,-rh*0.58,rw*0.28,0,6.28);ctx.fill();ctx.restore();}
-function spawnFlame(x,y,intensity){for(let i=0;i<Math.floor(intensity*12);i++)particles.push({x,y,vx:(Math.random()-.5)*2,vy:2+Math.random()*6,size:W*0.006+Math.random()*W*0.01,life:.5+Math.random()*.6,max:.9});}
-function render(ts){if(!running)return;requestAnimationFrame(render);const dt=Math.min((ts-lastT)/1000,.05);lastT=ts;ctx.save();ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);ctx.clearRect(-30,-30,W+60,H+60);ctx.drawImage(bgC,0,0);const by=rocketBaseY-rocketY;if(flame>0.05)spawnFlame(CX,by+H*0.01,flame);for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;if(p.life<=0){particles.splice(i,1);continue;}p.x+=p.vx;p.y+=p.vy;ctx.globalAlpha=p.life/p.max;const rg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size);rg.addColorStop(0,'rgba(255,240,180,.9)');rg.addColorStop(1,'transparent');ctx.fillStyle=rg;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,6.28);ctx.fill();}ctx.globalAlpha=1;drawRocket(CX,by);ctx.restore();if(isLaunched){launchSpeed+=dt*H*0.18;rocketY+=launchSpeed*dt;}}
-resize(); requestAnimationFrame(render); document.body.style.overflow='hidden';
-const nameEl=document.getElementById('name'), tagEl=document.getElementById('tag'), cdEl=document.getElementById('cd'), flashEl=document.getElementById('flash'), pf=document.getElementById('pf'), intro=document.getElementById('intro');
-gsap.to(pf,{width:'100%',duration:10.5,ease:'linear'});
-const tl=gsap.timeline();
-tl.call(()=>gsap.to(nameEl,{opacity:1,duration:1}),[],0.3);
-tl.call(()=>gsap.to(tagEl,{opacity:1,duration:.8}),[],1.2);
-tl.call(()=>{cdEl.textContent='T-3';gsap.fromTo(cdEl,{opacity:0,scale:1.4},{opacity:1,scale:1,duration:.3});},[],2.0);
-tl.call(()=>{cdEl.textContent='T-2';shake=5;flame=.25;},[],3.1);
-tl.call(()=>{cdEl.textContent='T-1';shake=11;flame=.6;},[],4.1);
-tl.call(()=>{cdEl.textContent='IGNITION';shake=24;flame=1.0;gsap.to(flashEl,{opacity:.9,duration:.04,yoyo:true,repeat:1});},[],5.0);
-tl.call(()=>{gsap.to(cdEl,{opacity:0,y:-30,duration:.4});isLaunched=true;launchSpeed=H*0.01;gsap.to({v:1},{v:1.5,duration:3,onUpdate:function(){flame=this.targets()[0].v;}});},[],5.5);
-tl.call(()=>{isLaunched=false;flame=0;gsap.to('#ui',{opacity:0,duration:1.2});gsap.to('#outro',{opacity:1,duration:1.2,delay:.4});},[],9.0);
-tl.call(()=>{running=false;intro.style.transition='1s ease';intro.style.opacity='0';setTimeout(()=>{intro.style.display='none';document.body.style.overflow='auto';},1000);},[],11.0);
+  const overlay=document.getElementById('dock-overlay');
+  const canvas=document.getElementById('dock-canvas');
+  const ctx=canvas.getContext('2d');
+  let W,H,t=0,done=false;
+  const stars=[];
+  const iss={x:0,y:0,angle:0};
+  const ship={x:0,y:0,angle:0};
+  document.body.style.overflow='hidden';
+
+  function resize(){
+    W=canvas.width=innerWidth; H=canvas.height=innerHeight;
+    iss.x=W*0.7; iss.y=H*0.36;
+    ship.x=W*0.16; ship.y=H*0.7;
+  }
+  addEventListener('resize',resize);
+
+  function mkStars(){
+    stars.length=0;
+    for(let i=0;i<280;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+0.2,a:Math.random()*0.8+0.2,tw:Math.random()*6.28});
+  }
+
+  function drawISS(){
+    ctx.save(); ctx.translate(iss.x,iss.y); ctx.rotate(iss.angle);
+    ctx.fillStyle='rgba(180,200,255,0.7)'; ctx.fillRect(-80,-5,160,10);
+    [[-72,-5],[-40,-5],[40,-5],[72,-5]].forEach(([tx])=>{ctx.fillStyle='rgba(180,200,255,0.5)';ctx.fillRect(tx-10,-32,20,25);ctx.fillRect(tx-10,7,20,25);});
+    ctx.fillStyle='rgba(180,200,255,0.85)'; ctx.beginPath(); ctx.roundRect(-22,-16,44,32,4); ctx.fill();
+    ctx.strokeStyle='rgba(0,245,255,0.9)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(88,0,9,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawShip(){
+    ctx.save(); ctx.translate(ship.x,ship.y); ctx.rotate(ship.angle);
+    ctx.fillStyle='rgba(0,245,255,0.9)';
+    ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-10,-8); ctx.lineTo(-6,0); ctx.lineTo(-10,8); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.arc(4,0,4,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
+  function finish(){
+    if(done) return; done=true;
+    const st=document.getElementById('dock-status');
+    if(st) st.textContent='DOCK COMPLETE · ENTERING PORTFOLIO';
+    setTimeout(()=>{
+      overlay.style.transition='opacity 1.1s ease';
+      overlay.style.opacity='0';
+      setTimeout(()=>{overlay.remove(); document.body.style.overflow='auto';},1200);
+    },800);
+  }
+
+  function loop(){
+    if(done) return;
+    t+=0.01;
+    ctx.clearRect(0,0,W,H);
+    const bg=ctx.createRadialGradient(W*.5,H*.35,0,W*.5,H*.35,Math.max(W,H)*.8);
+    bg.addColorStop(0,'#060918'); bg.addColorStop(1,'#03040a');
+    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
+    stars.forEach(s=>{s.tw+=0.02;ctx.globalAlpha=s.a*(0.5+0.5*Math.sin(s.tw));ctx.fillStyle='rgba(220,230,255,1)';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();});
+    ctx.globalAlpha=1;
+
+    iss.angle=Math.sin(t*0.8)*0.04;
+    const px=iss.x+Math.cos(iss.angle)*88, py=iss.y+Math.sin(iss.angle)*88;
+    const dx=px-ship.x, dy=py-ship.y;
+    ship.x+=dx*0.014; ship.y+=dy*0.014;
+    const targetAngle=Math.atan2(dy,dx); ship.angle += (targetAngle-ship.angle)*0.08;
+
+    ctx.setLineDash([4,8]); ctx.strokeStyle='rgba(0,245,255,0.28)';
+    ctx.beginPath(); ctx.moveTo(ship.x,ship.y); ctx.lineTo(px,py); ctx.stroke(); ctx.setLineDash([]);
+    drawISS(); drawShip();
+
+    if(Math.hypot(dx,dy)<14) { finish(); return; }
+    requestAnimationFrame(loop);
+  }
+
+  resize(); mkStars(); loop();
 })();
 </script>
 
