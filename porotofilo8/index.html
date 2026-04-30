@@ -794,7 +794,7 @@ body::after{
 
   // ── ISS definition ─────────────────────────────────────
   const ISS = { x:0, y:0, angle: 0 };
-  const DOCK_RADIUS = 18; // px — how close + aligned you must be
+  const DOCK_RADIUS = 42; // easier lock radius at start
   const CHATTER = [
     'HOUSTON: NISHAD, YOU ARE GO FOR APPROACH.',
     'CAPCOM: VELOCITY LOOKS NOMINAL. WATCH YOUR YAW.',
@@ -884,10 +884,11 @@ body::after{
   };
 
   function initShip(){
-    ship.x = W * 0.18;
-    ship.y = H * 0.65;
+    // Start much closer and mostly aligned so docking feels easy.
+    ship.x = W * 0.56;
+    ship.y = H * 0.43;
     ship.vx = 0; ship.vy = 0;
-    ship.angle = -Math.PI/6;
+    ship.angle = 0;
     ship.fuel = 100;
   }
 
@@ -1004,10 +1005,10 @@ body::after{
     let angleDiff = ship.angle - ISS.angle;
     while(angleDiff >  Math.PI) angleDiff -= Math.PI*2;
     while(angleDiff < -Math.PI) angleDiff += Math.PI*2;
-    const aligned = Math.abs(angleDiff) < 0.35; // ~20°
+    const aligned = Math.abs(angleDiff) < 0.8; // very forgiving alignment
 
     const speed = Math.sqrt(ship.vx**2+ship.vy**2);
-    const slowEnough = speed < 1.2;
+    const slowEnough = speed < 2.6;
 
     // Update HUD
     document.getElementById('d-vx').textContent   = ship.vx.toFixed(2);
@@ -1024,7 +1025,7 @@ body::after{
 
     if(inRange && aligned && slowEnough){
       dockLockFrames++;
-      if(dockLockFrames > 40){
+      if(dockLockFrames > 16){
         triggerDockSuccess();
       }
     } else {
