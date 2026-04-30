@@ -734,13 +734,21 @@ body::after{
 
 <!-- Video intro cinematic -->
 <div id="video-intro" style="position:fixed;inset:0;z-index:99999;background:#000;overflow:hidden;">
-  <video id="intro-video" autoplay muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
-    <source src="files/Video%20Project.mp4" type="video/mp4">
+  <video id="intro-video" autoplay muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;animation:introFlyAcross 8.5s ease-in-out forwards;">
+    <source src="files/23882-338327769.mp4" type="video/mp4">
   </video>
   <div id="intro-vignette" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75),transparent 45%,rgba(0,0,0,0.55));pointer-events:none;"></div>
   <div id="intro-fade" style="position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity 1.8s ease;"></div>
   <div id="intro-welcome" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:clamp(1.1rem,3vw,2rem);letter-spacing:.2em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity 1.4s ease;text-shadow:0 0 22px rgba(255,255,255,.65);pointer-events:none;">Welcome to my website</div>
 </div>
+<style>
+@keyframes introFlyAcross{
+  0%   {transform:translateX(-16vw) scale(1.05);}
+  35%  {transform:translateX(-4vw)  scale(1.08);}
+  70%  {transform:translateX(10vw)  scale(1.11);}
+  100% {transform:translateX(20vw)  scale(1.14);}
+}
+</style>
 <script>
 (function(){
   const overlay = document.getElementById('video-intro');
