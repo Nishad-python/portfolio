@@ -367,9 +367,11 @@ nav.scrolled{
 
 /* Featured project */
 .project-featured{
-  display:grid;grid-template-columns:1.1fr 1fr;gap:0;
+  display:grid;grid-template-columns:160px 1fr;gap:1.2rem;
   border:1px solid var(--border);margin-bottom:1px;
   transition:border-color .3s;position:relative;overflow:hidden;
+  align-items:center;
+  padding:1.2rem;
 }
 .project-featured::before{
   content:'';position:absolute;inset:0;
@@ -378,6 +380,7 @@ nav.scrolled{
 }
 .project-featured:hover{border-color:var(--border2);}
 .proj-feat-img{
+  width:160px;
   overflow:hidden;background:var(--void3);
   display:flex;align-items:center;justify-content:center;
   aspect-ratio:16/10;
@@ -392,7 +395,7 @@ nav.scrolled{
   letter-spacing:0.1em;
 }
 .proj-feat-content{
-  padding:3rem;display:flex;flex-direction:column;
+  padding:.2rem;display:flex;flex-direction:column;
   justify-content:center;background:var(--void2);
   position:relative;z-index:2;
 }
