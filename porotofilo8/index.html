@@ -732,91 +732,40 @@ body::after{
 </head>
 <body>
 
-<!-- Docking cinematic intro -->
-<div id="dock-overlay" style="position:fixed;inset:0;z-index:99999;background:#03040a;overflow:hidden;">
-  <canvas id="dock-canvas" style="position:absolute;inset:0;"></canvas>
-  <div style="position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;font-family:'Orbitron',monospace;pointer-events:none;">
-    <div style="font-size:.6rem;letter-spacing:.3em;color:rgba(0,245,255,.45);text-transform:uppercase;">NISHAD-ATHALYE.EXE · DOCKING SEQUENCE</div>
-    <div style="font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:.1em;margin-top:.4rem;">AUTOMATED ISS APPROACH</div>
-  </div>
-  <div id="dock-status" style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.14em;color:rgba(0,245,255,.6);text-transform:uppercase;white-space:nowrap;pointer-events:none;">CINEMATIC IN PROGRESS · APPROACHING DOCKING PORT · STANDBY</div>
+<!-- Video intro cinematic -->
+<div id="video-intro" style="position:fixed;inset:0;z-index:99999;background:#000;overflow:hidden;">
+  <video id="intro-video" autoplay muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+    <source src="files/Video%20Project.mp4" type="video/mp4">
+  </video>
+  <div id="intro-vignette" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent 45%,rgba(0,0,0,0.45));pointer-events:none;"></div>
+  <div id="intro-welcome" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:clamp(1.1rem,3vw,2rem);letter-spacing:.2em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .9s ease;text-shadow:0 0 18px rgba(255,255,255,.5);pointer-events:none;">Welcome to my website</div>
 </div>
 <script>
 (function(){
-  const overlay=document.getElementById('dock-overlay');
-  const canvas=document.getElementById('dock-canvas');
-  const ctx=canvas.getContext('2d');
-  let W,H,t=0,done=false;
-  const stars=[];
-  const iss={x:0,y:0,angle:0};
-  const ship={x:0,y:0,angle:0};
-  document.body.style.overflow='hidden';
+  const overlay = document.getElementById('video-intro');
+  const video = document.getElementById('intro-video');
+  const welcome = document.getElementById('intro-welcome');
+  if(!overlay || !video){ return; }
+  document.body.style.overflow = 'hidden';
+  let finished = false;
 
-  function resize(){
-    W=canvas.width=innerWidth; H=canvas.height=innerHeight;
-    iss.x=W*0.7; iss.y=H*0.36;
-    ship.x=W*0.16; ship.y=H*0.7;
-  }
-  addEventListener('resize',resize);
-
-  function mkStars(){
-    stars.length=0;
-    for(let i=0;i<280;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.3+0.2,a:Math.random()*0.8+0.2,tw:Math.random()*6.28});
-  }
-
-  function drawISS(){
-    ctx.save(); ctx.translate(iss.x,iss.y); ctx.rotate(iss.angle);
-    ctx.fillStyle='rgba(180,200,255,0.7)'; ctx.fillRect(-80,-5,160,10);
-    [[-72,-5],[-40,-5],[40,-5],[72,-5]].forEach(([tx])=>{ctx.fillStyle='rgba(180,200,255,0.5)';ctx.fillRect(tx-10,-32,20,25);ctx.fillRect(tx-10,7,20,25);});
-    ctx.fillStyle='rgba(180,200,255,0.85)'; ctx.beginPath(); ctx.roundRect(-22,-16,44,32,4); ctx.fill();
-    ctx.strokeStyle='rgba(0,245,255,0.9)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(88,0,9,0,Math.PI*2); ctx.stroke();
-    ctx.restore();
-  }
-
-  function drawShip(){
-    ctx.save(); ctx.translate(ship.x,ship.y); ctx.rotate(ship.angle);
-    ctx.fillStyle='rgba(0,245,255,0.9)';
-    ctx.beginPath(); ctx.moveTo(14,0); ctx.lineTo(-10,-8); ctx.lineTo(-6,0); ctx.lineTo(-10,8); ctx.closePath(); ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.beginPath(); ctx.arc(4,0,4,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-  }
-
-  function finish(){
-    if(done) return; done=true;
-    const st=document.getElementById('dock-status');
-    if(st) st.textContent='DOCK COMPLETE · ENTERING PORTFOLIO';
+  function endIntro(){
+    if(finished) return;
+    finished = true;
+    if(welcome) welcome.style.opacity = '1';
     setTimeout(()=>{
-      overlay.style.transition='opacity 1.1s ease';
-      overlay.style.opacity='0';
-      setTimeout(()=>{overlay.remove(); document.body.style.overflow='auto';},1200);
-    },800);
+      overlay.style.transition = 'opacity 1.1s ease';
+      overlay.style.opacity = '0';
+      setTimeout(()=>{
+        overlay.remove();
+        document.body.style.overflow = 'auto';
+      }, 1200);
+    }, 900);
   }
 
-  function loop(){
-    if(done) return;
-    t+=0.01;
-    ctx.clearRect(0,0,W,H);
-    const bg=ctx.createRadialGradient(W*.5,H*.35,0,W*.5,H*.35,Math.max(W,H)*.8);
-    bg.addColorStop(0,'#060918'); bg.addColorStop(1,'#03040a');
-    ctx.fillStyle=bg; ctx.fillRect(0,0,W,H);
-    stars.forEach(s=>{s.tw+=0.02;ctx.globalAlpha=s.a*(0.5+0.5*Math.sin(s.tw));ctx.fillStyle='rgba(220,230,255,1)';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();});
-    ctx.globalAlpha=1;
-
-    iss.angle=Math.sin(t*0.8)*0.04;
-    const px=iss.x+Math.cos(iss.angle)*88, py=iss.y+Math.sin(iss.angle)*88;
-    const dx=px-ship.x, dy=py-ship.y;
-    ship.x+=dx*0.014; ship.y+=dy*0.014;
-    const targetAngle=Math.atan2(dy,dx); ship.angle += (targetAngle-ship.angle)*0.08;
-
-    ctx.setLineDash([4,8]); ctx.strokeStyle='rgba(0,245,255,0.28)';
-    ctx.beginPath(); ctx.moveTo(ship.x,ship.y); ctx.lineTo(px,py); ctx.stroke(); ctx.setLineDash([]);
-    drawISS(); drawShip();
-
-    if(Math.hypot(dx,dy)<14) { finish(); return; }
-    requestAnimationFrame(loop);
-  }
-
-  resize(); mkStars(); loop();
+  video.addEventListener('ended', endIntro);
+  video.addEventListener('error', endIntro);
+  setTimeout(endIntro, 20000);
 })();
 </script>
 
