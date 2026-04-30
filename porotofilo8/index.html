@@ -420,9 +420,6 @@ nav.scrolled{
   cursor:pointer;transition:background .3s;position:relative;
   text-decoration:none;color:inherit;
 }
-.project-row.no-side-actions{
-  grid-template-columns:80px 140px 1fr;
-}
 .project-row::before{
   content:'';position:absolute;left:-5rem;right:-5rem;top:0;bottom:0;
   background:linear-gradient(to right,rgba(0,245,255,0.02),transparent);
@@ -1017,7 +1014,7 @@ body::after{
         </div>
       </a>
 
-      <a href="https://gdtisd.vercel.app/" target="_blank" class="project-row no-side-actions reveal">
+      <a href="https://gdtisd.vercel.app/" target="_blank" class="project-row reveal">
         <div class="proj-num">03</div>
         <div class="proj-thumb">
           <img src="images/global-peace-dashboard.png" alt="Global Peace Dashboard">
@@ -1030,10 +1027,13 @@ body::after{
             <span class="tech-chip">CSS</span>
             <span class="tech-chip">JavaScript</span>
           </div>
-          <div class="proj-links" style="margin-top:.8rem;">
+        </div>
+        <div class="proj-right">
+          <div class="proj-links">
             <a href="https://github.com/atharvachaudhari1/Global-dashboard" target="_blank" class="proj-link" onclick="event.stopPropagation()">GitHub</a>
             <span class="proj-link">Live →</span>
           </div>
+          <div class="proj-arrow">→</div>
         </div>
       </a>
 
