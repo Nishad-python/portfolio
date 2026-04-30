@@ -741,9 +741,9 @@ body::after{
     <div style="position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:.58rem;letter-spacing:.1em;color:rgba(0,245,255,.35);line-height:2.2;text-transform:uppercase;text-align:right;">
       <div>STATUS: <span id="d-status" style="color:rgba(0,245,255,.7)">APPROACH</span></div>
       <div>LOCK: <span id="d-lock">NO</span></div>
-      <div style="margin-top:.8rem;">WASD: THRUST</div>
-      <div>Q/E: ROTATE</div>
-      <div>SHIFT: BRAKE</div>
+      <div style="margin-top:.8rem;">AUTO PILOT: ENGAGED</div>
+      <div>FLIGHT CONTROL: ONLINE</div>
+      <div>DOCKING AI: ACTIVE</div>
     </div>
 
     <!-- Docking message (shown on success) -->
@@ -884,11 +884,11 @@ body::after{
   };
 
   function initShip(){
-    // Start much closer and mostly aligned so docking feels easy.
-    ship.x = W * 0.56;
-    ship.y = H * 0.43;
+    // Cinematic start: visible travel path toward the docking port.
+    ship.x = W * 0.18;
+    ship.y = H * 0.65;
     ship.vx = 0; ship.vy = 0;
-    ship.angle = 0;
+    ship.angle = -0.45;
     ship.fuel = 100;
   }
 
@@ -1142,6 +1142,20 @@ body::after{
 
     if(!AUTO_CINEMATIC){
       physics();
+    } else {
+      const port = portPos();
+      const dx = port.x - ship.x;
+      const dy = port.y - ship.y;
+      ship.x += dx * 0.016;
+      ship.y += dy * 0.016;
+      const targetAngle = Math.atan2(dy, dx);
+      let diff = targetAngle - ship.angle;
+      while(diff > Math.PI) diff -= Math.PI*2;
+      while(diff < -Math.PI) diff += Math.PI*2;
+      ship.angle += diff * 0.09;
+      ship.vx = dx * 0.02;
+      ship.vy = dy * 0.02;
+      ship.fuel = Math.max(78, ship.fuel - 0.04);
     }
     const portInfo = checkDock();
     if(portInfo.inRange && portInfo.aligned && !docked) spawnSparks();
