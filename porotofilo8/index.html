@@ -690,254 +690,141 @@ body::after{
 </head>
 <body>
 
-<!-- ============================================================
-     ISS DOCKING SCREEN — sits on top of everything, removed on success
-     ============================================================ -->
-<div id="dock-overlay" style="
-  position:fixed;inset:0;z-index:99999;
-  background:#03040a;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  font-family:'Share Tech Mono',monospace;
-  cursor:none;
-  overflow:hidden;
-">
-  <canvas id="dock-canvas" style="position:absolute;inset:0;"></canvas>
+<!-- Startup cinematic -->
+<style>
+#intro{position:fixed;inset:0;overflow:hidden;background:radial-gradient(circle at bottom,#02030a,#000);z-index:99999}
+#intro canvas{position:absolute;inset:0}
+#hud{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:6rem;z-index:10;text-shadow:0 0 30px rgba(255,255,255,.5);transition:.3s}
+#earthGlow{position:absolute;bottom:-40%;left:50%;transform:translateX(-50%);width:1200px;height:600px;background:radial-gradient(circle,rgba(0,140,255,.25),transparent 70%);filter:blur(20px);border-radius:50%}
+#rocket{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);font-size:90px;z-index:5;filter:drop-shadow(0 0 20px orange)}
+#flame{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);width:25px;height:70px;background:radial-gradient(circle,orange,red,transparent);filter:blur(5px);border-radius:50%;animation:flicker .08s infinite;z-index:4}
+@keyframes flicker{0%{transform:translateX(-50%) scaleY(1)}50%{transform:translateX(-50%) scaleY(2)}100%{transform:translateX(-50%) scaleY(1)}}
+.ring{position:absolute;left:50%;bottom:140px;width:20px;height:20px;border:2px solid #fff;border-radius:50%;transform:translateX(-50%);opacity:0}
+#flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:20;pointer-events:none}
+.shake{animation:shake .04s infinite}
+@keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(2px,-2px)}50%{transform:translate(-2px,2px)}75%{transform:translate(2px,2px)}100%{transform:translate(0,0)}}
+</style>
 
-  <!-- HUD UI -->
-  <div style="position:relative;z-index:10;width:100%;height:100%;pointer-events:none;">
-
-    <!-- Title -->
-    <div style="position:absolute;top:2rem;left:50%;transform:translateX(-50%);text-align:center;">
-      <div style="font-family:'Orbitron',monospace;font-size:.6rem;letter-spacing:.3em;color:rgba(0,245,255,.4);text-transform:uppercase;margin-bottom:.4rem;">NISHAD-ATHALYE.EXE · LAUNCH SEQUENCE</div>
-      <div style="font-family:'Orbitron',monospace;font-size:1.1rem;font-weight:700;color:#fff;letter-spacing:.1em;">AUTOMATED LAUNCH SEQUENCE</div>
-    </div>
-
-    <!-- Instructions -->
-    <div id="dock-instructions" style="position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);text-align:center;white-space:nowrap;">
-      <div style="font-size:.62rem;letter-spacing:.15em;color:rgba(0,245,255,.5);text-transform:uppercase;">
-        LAUNCH CINEMATIC IN PROGRESS &nbsp;·&nbsp; ENGINES IGNITING &nbsp;·&nbsp; STANDBY
-      </div>
-    </div>
-
-    <div id="dock-chatter" style="
-      position:absolute;bottom:5rem;left:50%;transform:translateX(-50%);
-      background:rgba(0,10,20,.82);border:1px solid rgba(0,245,255,.25);
-      padding:.55rem .9rem;font-size:.58rem;letter-spacing:.12em;
-      color:#00f5ff;text-transform:uppercase;opacity:0;
-      transition:opacity .3s ease, transform .3s ease;
-      font-family:'Share Tech Mono',monospace;white-space:nowrap;
-    "></div>
-
-    <!-- Telemetry panel LEFT -->
-    <div style="position:absolute;left:2rem;top:50%;transform:translateY(-50%);font-size:.58rem;letter-spacing:.1em;color:rgba(0,245,255,.35);line-height:2.2;text-transform:uppercase;">
-      <div>ALT: <span id="d-vx">0</span> km</div>
-      <div>VEL: <span id="d-vy">0.00</span> km/s</div>
-      <div>STAGE:  <span id="d-dist">I</span></div>
-      <div>PITCH: <span id="d-align">90</span>°</div>
-      <div style="margin-top:.8rem;">FUEL: <span id="d-fuel">100</span>%</div>
-    </div>
-
-    <!-- Telemetry panel RIGHT -->
-    <div style="position:absolute;right:2rem;top:50%;transform:translateY(-50%);font-size:.58rem;letter-spacing:.1em;color:rgba(0,245,255,.35);line-height:2.2;text-transform:uppercase;text-align:right;">
-      <div>STATUS: <span id="d-status" style="color:rgba(0,245,255,.7)">PRE-LAUNCH</span></div>
-      <div>MODE: <span id="d-lock">AUTO</span></div>
-      <div style="margin-top:.8rem;">AUTO PILOT: ENGAGED</div>
-      <div>FLIGHT CONTROL: ONLINE</div>
-      <div>GUIDANCE AI: ACTIVE</div>
-    </div>
-
-    <!-- Docking message (shown on success) -->
-    <div id="dock-success-msg" style="
-      position:absolute;inset:0;display:none;
-      flex-direction:column;align-items:center;justify-content:center;
-      background:rgba(3,4,10,.85);
-      font-family:'Orbitron',monospace;text-align:center;
-    ">
-      <div style="font-size:2rem;font-weight:900;color:#00f5ff;text-shadow:0 0 40px #00f5ff;letter-spacing:.08em;">LIFTOFF</div>
-      <div style="font-size:.7rem;letter-spacing:.25em;color:rgba(0,245,255,.6);margin-top:.8rem;text-transform:uppercase;">Orbit Achieved · Entering Portfolio</div>
-      <div style="margin-top:1.5rem;width:220px;height:2px;background:rgba(0,245,255,.1);overflow:hidden;">
-        <div id="dock-bar" style="height:100%;width:0%;background:linear-gradient(to right,#7b2fff,#00f5ff);transition:width 2s linear;"></div>
-      </div>
-    </div>
-
-  </div><!-- /HUD -->
-</div><!-- /dock-overlay -->
+<div id="intro">
+  <canvas id="c"></canvas>
+  <div id="earthGlow"></div>
+  <div id="hud">3</div>
+  <div id="rocket">🚀</div>
+  <div id="flame"></div>
+  <div class="ring" id="ring"></div>
+  <div id="flash"></div>
+</div>
 
 <script>
-(function(){
-  const overlay  = document.getElementById('dock-overlay');
-  const canvas   = document.getElementById('dock-canvas');
-  const ctx      = canvas.getContext('2d');
-  const chatterEl = document.getElementById('dock-chatter');
-  document.body.style.overflow = 'hidden';
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
 
-  let W, H;
-  let t = 0;
-  let done = false;
-  const launchStart = performance.now();
-  const launchDuration = 9000;
-  const stars = [];
-  const particles = [];
-  const rocket = { x: 0, y: 0, vy: 0, angle: -Math.PI / 2, fuel: 100 };
-  const CHATTER = [
-    'HOUSTON: COUNTDOWN STARTED.',
-    'CAPCOM: MAIN ENGINES IGNITION.',
-    'HOUSTON: LIFTOFF CONFIRMED. ASCENT NOMINAL.',
-    'CAPCOM: MAX-Q PASSED. TRAJECTORY STABLE.',
-    'MISSION: ORBIT INJECTION COMPLETE.'
-  ];
-  let chatterIdx = 0;
-  let lastChatterAt = 0;
+const stars = Array.from({length:600}, () => ({
+  x: Math.random()*canvas.width,
+  y: Math.random()*canvas.height,
+  z: Math.random()*3+0.5
+}));
 
-  function resize(){
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    if(!rocket.x){
-      rocket.x = W * 0.5;
-      rocket.y = H * 0.82;
+let warp = false;
+let speedBoost = 0;
+
+function draw(){
+  ctx.fillStyle = "black";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  for(const s of stars){
+    const speed = warp ? s.z*12 + speedBoost : s.z;
+    s.y += speed;
+    if(s.y > canvas.height){ s.y = 0; s.x = Math.random()*canvas.width; }
+    const size = s.z;
+    ctx.fillStyle = "white";
+    if(warp) ctx.fillRect(s.x, s.y, size, size*10);
+    else ctx.fillRect(s.x, s.y, size, size);
+  }
+  requestAnimationFrame(draw);
+}
+draw();
+
+let audioCtx;
+function engine(){
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "sawtooth";
+  osc.frequency.value = 50;
+  gain.gain.value = 0.02;
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  let i = 0;
+  const t = setInterval(() => {
+    i++;
+    osc.frequency.value = 50 + i*10;
+    gain.gain.value = 0.02 + i*0.006;
+    if(i > 25){ clearInterval(t); osc.stop(); }
+  }, 100);
+}
+
+const hud = document.getElementById("hud");
+const rocket = document.getElementById("rocket");
+const flame = document.getElementById("flame");
+const flash = document.getElementById("flash");
+const ring = document.getElementById("ring");
+document.body.style.overflow = "hidden";
+
+setTimeout(()=>engine(), 500);
+let count = 3;
+
+const timer = setInterval(() => {
+  count--;
+  if(count > 0){ hud.innerText = count; }
+  if(count === 0){
+    hud.innerText = "IGNITION";
+    document.body.classList.add("shake");
+    warp = true;
+    flash.style.opacity = 0.7;
+    ring.style.transition = "0.8s ease-out";
+    ring.style.opacity = 1;
+    ring.style.width = "400px";
+    ring.style.height = "400px";
+    ring.style.bottom = "120px";
+  }
+  if(count < 0){
+    clearInterval(timer);
+    hud.style.opacity = 0;
+    let pos = 0;
+    let velocity = 0;
+    const accel = 0.35;
+    function launch(){
+      velocity += accel;
+      pos += velocity;
+      speedBoost = velocity * 2;
+      rocket.style.transform = `translate(-50%, ${-pos}px)`;
+      flame.style.transform = `translate(-50%, ${-pos}px) scale(${1 + velocity/4})`;
+      if(pos > innerHeight * 1.2) end();
+      else requestAnimationFrame(launch);
     }
+    launch();
+    setTimeout(()=>{ flash.style.opacity = 0; }, 200);
   }
-  window.addEventListener('resize', resize);
+}, 1000);
 
-  function mkStars(){
-    stars.length = 0;
-    for(let i=0;i<320;i++){
-      stars.push({ x:Math.random()*W, y:Math.random()*H, r:Math.random()*1.2+0.2, tw:Math.random()*Math.PI*2, a:Math.random()*0.7+0.2 });
-    }
-  }
+function end(){
+  document.body.classList.remove("shake");
+  const intro = document.getElementById("intro");
+  intro.style.transition = "1.2s ease";
+  intro.style.opacity = "0";
+  setTimeout(()=>{
+    intro.style.display = "none";
+    document.body.style.overflow = "auto";
+  }, 1200);
+}
 
-  function showChatter(text){
-    if(!chatterEl) return;
-    chatterEl.textContent = '▶ ' + text;
-    chatterEl.style.opacity = '1';
-    chatterEl.style.transform = 'translateX(-50%) translateY(0)';
-    clearTimeout(showChatter._timer);
-    showChatter._timer = setTimeout(()=>{
-      chatterEl.style.opacity = '0';
-      chatterEl.style.transform = 'translateX(-50%) translateY(12px)';
-    }, 2200);
-  }
-
-  function spawnFlame(){
-    for(let i=0;i<8;i++){
-      particles.push({
-        x: rocket.x + (Math.random()-0.5)*8,
-        y: rocket.y + 26,
-        vx: (Math.random()-0.5)*1.4,
-        vy: Math.random()*3 + 2.2,
-        life: 1,
-        r: Math.random()*2 + 1.8
-      });
-    }
-  }
-
-  function drawRocket(){
-    ctx.save();
-    ctx.translate(rocket.x, rocket.y);
-    ctx.rotate(rocket.angle + Math.sin(t*0.8)*0.02);
-    ctx.fillStyle = 'rgba(220,235,255,0.95)';
-    ctx.beginPath();
-    ctx.moveTo(0,-24); ctx.lineTo(12,18); ctx.lineTo(-12,18); ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = 'rgba(0,245,255,0.8)';
-    ctx.fillRect(-8,8,16,8);
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.beginPath(); ctx.arc(0,-4,4,0,Math.PI*2); ctx.fill();
-    ctx.restore();
-  }
-
-  function drawSky(progress){
-    const bg = ctx.createLinearGradient(0,0,0,H);
-    bg.addColorStop(0, `rgba(${Math.floor(3+progress*20)},${Math.floor(4+progress*25)},${Math.floor(14+progress*40)},1)`);
-    bg.addColorStop(1, '#03040a');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0,0,W,H);
-  }
-
-  function drawStars(progress){
-    stars.forEach(s=>{
-      s.tw += 0.015;
-      const twinkle = s.a*(0.4+0.6*Math.sin(s.tw));
-      ctx.globalAlpha = twinkle * (0.2 + progress*0.9);
-      ctx.fillStyle='rgba(220,230,255,1)';
-      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
-    });
-    ctx.globalAlpha = 1;
-  }
-
-  function drawParticles(){
-    for(let i=particles.length-1;i>=0;i--){
-      const p = particles[i];
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= 0.03;
-      if(p.life <= 0){ particles.splice(i,1); continue; }
-      ctx.globalAlpha = p.life;
-      ctx.fillStyle = 'rgba(255,160,70,0.9)';
-      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
-
-  function finish(){
-    if(done) return;
-    done = true;
-    const msg = document.getElementById('dock-success-msg');
-    msg.style.display = 'flex';
-    setTimeout(()=>{ document.getElementById('dock-bar').style.width='100%'; }, 50);
-    setTimeout(()=>{
-      overlay.style.transition = 'opacity 1.2s ease';
-      overlay.style.opacity = '0';
-      setTimeout(()=>{
-        overlay.remove();
-        document.body.style.overflow = '';
-      }, 1300);
-    }, 2200);
-  }
-
-  function loop(now){
-    if(done) return;
-    t += 0.016;
-    const elapsed = now - launchStart;
-    const p = Math.min(1, elapsed / launchDuration);
-    ctx.clearRect(0,0,W,H);
-
-    drawSky(p);
-    drawStars(p);
-    spawnFlame();
-    drawParticles();
-
-    const lift = p * p;
-    rocket.y = H * 0.82 - lift * (H * 0.9);
-    rocket.vy = -(0.3 + p*3.2);
-    rocket.fuel = Math.max(18, 100 - p * 84);
-    drawRocket();
-
-    document.getElementById('d-vx').textContent = Math.round(p * 240);
-    document.getElementById('d-vy').textContent = (0.35 + p * 7.1).toFixed(2);
-    document.getElementById('d-dist').textContent = p < 0.4 ? 'I' : (p < 0.75 ? 'II' : 'III');
-    document.getElementById('d-align').textContent = Math.max(12, 90 - p * 74).toFixed(0);
-    document.getElementById('d-fuel').textContent = Math.round(rocket.fuel);
-    document.getElementById('d-lock').textContent = 'AUTO';
-    document.getElementById('d-status').textContent = p < 0.25 ? 'LIFTOFF' : (p < 0.6 ? 'ASCENT' : (p < 0.9 ? 'STAGING' : 'ORBIT'));
-
-    if(elapsed - lastChatterAt > 1800 && chatterIdx < CHATTER.length){
-      showChatter(CHATTER[chatterIdx++]);
-      lastChatterAt = elapsed;
-    }
-
-    if(p >= 1){
-      finish();
-      return;
-    }
-    requestAnimationFrame(loop);
-  }
-
-  resize();
-  mkStars();
-  showChatter('MISSION CONTROL: AUTOMATED LAUNCH SEQUENCE START.');
-  requestAnimationFrame(loop);
-})();
+addEventListener("resize", ()=>{
+  canvas.width = innerWidth;
+  canvas.height = innerHeight;
+});
 </script>
 
 <!-- Scroll progress bar -->
