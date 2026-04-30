@@ -420,6 +420,9 @@ nav.scrolled{
   cursor:pointer;transition:background .3s;position:relative;
   text-decoration:none;color:inherit;
 }
+.project-row.no-side-actions{
+  grid-template-columns:80px 140px 1fr;
+}
 .project-row::before{
   content:'';position:absolute;left:-5rem;right:-5rem;top:0;bottom:0;
   background:linear-gradient(to right,rgba(0,245,255,0.02),transparent);
@@ -1063,7 +1066,7 @@ addEventListener("resize", ()=>{
         </div>
       </a>
 
-      <a href="https://gdtisd.vercel.app/" target="_blank" class="project-row reveal">
+      <a href="https://gdtisd.vercel.app/" target="_blank" class="project-row no-side-actions reveal">
         <div class="proj-num">03</div>
         <div class="proj-thumb">
           <img src="images/global-peace-dashboard.png" alt="Global Peace Dashboard">
@@ -1081,7 +1084,6 @@ addEventListener("resize", ()=>{
             <span class="proj-link">Live →</span>
           </div>
         </div>
-        <div class="proj-right"><div class="proj-arrow">→</div></div>
       </a>
 
       <div class="project-row reveal">
