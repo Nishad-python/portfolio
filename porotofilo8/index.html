@@ -696,141 +696,83 @@ body::after{
 </head>
 <body>
 
-<!-- Startup cinematic -->
+<!-- Startup cinematic (user-provided GSAP launch) -->
 <style>
-#intro{position:fixed;inset:0;overflow:hidden;background:radial-gradient(circle at bottom,#02030a,#000);z-index:99999}
-#intro canvas{position:absolute;inset:0}
-#hud{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:6rem;z-index:10;text-shadow:0 0 30px rgba(255,255,255,.5);transition:.3s}
-#earthGlow{position:absolute;bottom:-40%;left:50%;transform:translateX(-50%);width:1200px;height:600px;background:radial-gradient(circle,rgba(0,140,255,.25),transparent 70%);filter:blur(20px);border-radius:50%}
-#rocket{position:absolute;left:50%;bottom:120px;transform:translateX(-50%);font-size:90px;z-index:5;filter:drop-shadow(0 0 20px orange)}
-#flame{position:absolute;left:50%;bottom:80px;transform:translateX(-50%);width:25px;height:70px;background:radial-gradient(circle,orange,red,transparent);filter:blur(5px);border-radius:50%;animation:flicker .08s infinite;z-index:4}
-@keyframes flicker{0%{transform:translateX(-50%) scaleY(1)}50%{transform:translateX(-50%) scaleY(2)}100%{transform:translateX(-50%) scaleY(1)}}
-.ring{position:absolute;left:50%;bottom:140px;width:20px;height:20px;border:2px solid #fff;border-radius:50%;transform:translateX(-50%);opacity:0}
-#flash{position:absolute;inset:0;background:#fff;opacity:0;z-index:20;pointer-events:none}
-.shake{animation:shake .04s infinite}
-@keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(2px,-2px)}50%{transform:translate(-2px,2px)}75%{transform:translate(2px,2px)}100%{transform:translate(0,0)}}
+#intro{position:fixed;inset:0;overflow:hidden;background:#000;z-index:99999}
+#intro canvas{position:fixed;inset:0;display:block}
+#bg{z-index:0}
+#main{z-index:1}
+#ui{position:fixed;inset:0;z-index:10;pointer-events:none;font-family:'Share Tech Mono',monospace}
+#ui::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px)}
+.brk{position:absolute;width:24px;height:24px;border-color:rgba(0,255,140,.4);border-style:solid}
+.tl{top:20px;left:20px;border-width:2px 0 0 2px}
+.tr{top:20px;right:20px;border-width:2px 2px 0 0}
+.bl{bottom:20px;left:20px;border-width:0 0 2px 2px}
+.br{bottom:20px;right:20px;border-width:0 2px 2px 0}
+.hud{position:absolute;font-size:10.5px;color:rgba(0,255,140,.55);line-height:2;letter-spacing:.1em}
+.hud.tl{top:26px;left:48px}.hud.tr{top:26px;right:48px;text-align:right}
+.hud.bl{bottom:26px;left:48px}.hud.br{bottom:26px;right:48px;text-align:right}
+#pw{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);width:180px;text-align:center}
+#pl{font-size:9.5px;color:rgba(0,255,140,.4);letter-spacing:.35em;margin-bottom:4px}
+#pt{height:1.5px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+#pf{height:100%;width:0%;background:linear-gradient(90deg,#00ff8c,#00cfff)}
+#stage{position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);text-align:center;width:90%}
+#name{font-family:'Orbitron',monospace;font-size:clamp(34px,7.5vw,90px);font-weight:900;color:#fff;letter-spacing:.22em;opacity:0;text-shadow:0 0 30px rgba(255,255,255,.5)}
+#tag{font-size:clamp(9px,1.4vw,12px);color:rgba(0,255,140,.8);letter-spacing:.45em;text-transform:uppercase;opacity:0;margin-top:8px}
+#cd{font-family:'Orbitron',monospace;font-size:clamp(60px,13vw,130px);font-weight:900;color:#fff;opacity:0;margin-top:10px;text-shadow:0 0 40px rgba(255,140,30,.5)}
+#flash{position:fixed;inset:0;background:#fff;opacity:0;z-index:20;pointer-events:none}
+#outro{position:fixed;inset:0;background:#000;opacity:0;z-index:30;pointer-events:none;display:flex;align-items:center;justify-content:center}
+#ot{font-family:'Orbitron',monospace;font-size:clamp(9px,1.2vw,13px);color:rgba(255,255,255,.45);letter-spacing:.55em;text-transform:uppercase}
 </style>
 
 <div id="intro">
-  <canvas id="c"></canvas>
-  <div id="earthGlow"></div>
-  <div id="hud">3</div>
-  <div id="rocket">🚀</div>
-  <div id="flame"></div>
-  <div class="ring" id="ring"></div>
+  <canvas id="bg"></canvas>
+  <canvas id="main"></canvas>
   <div id="flash"></div>
+  <div id="ui">
+    <div class="brk tl"></div><div class="brk tr"></div><div class="brk bl"></div><div class="brk br"></div>
+    <div class="hud tl">SYS : ARMED<br>FUEL : 100.0%<br>TRAJ : NOMINAL</div>
+    <div class="hud tr">LAT : 19.0760° N<br>LON : 72.8777° E<br>ALT : 14 m</div>
+    <div class="hud bl">MISSION : NISHAD-01<br>PAYLOAD : PORTFOLIO<br>STATUS : ACTIVE</div>
+    <div class="hud br">ENGINE : VLSI-X9<br>THRUST : 7.6 MN<br>STAGE : 1 / 1</div>
+    <div id="pw"><div id="pl">LAUNCH SEQUENCE</div><div id="pt"><div id="pf"></div></div></div>
+    <div id="stage">
+      <div id="name">NISHAD</div>
+      <div id="tag">Web Developer · VLSI Research · Mumbai</div>
+      <div id="cd"></div>
+    </div>
+  </div>
+  <div id="outro"><div id="ot">Entering Portfolio…</div></div>
 </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-const canvas = document.getElementById("c");
-const ctx = canvas.getContext("2d");
-canvas.width = innerWidth;
-canvas.height = innerHeight;
-
-const stars = Array.from({length:600}, () => ({
-  x: Math.random()*canvas.width,
-  y: Math.random()*canvas.height,
-  z: Math.random()*3+0.5
-}));
-
-let warp = false;
-let speedBoost = 0;
-
-function draw(){
-  ctx.fillStyle = "black";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  for(const s of stars){
-    const speed = warp ? s.z*12 + speedBoost : s.z;
-    s.y += speed;
-    if(s.y > canvas.height){ s.y = 0; s.x = Math.random()*canvas.width; }
-    const size = s.z;
-    ctx.fillStyle = "white";
-    if(warp) ctx.fillRect(s.x, s.y, size, size*10);
-    else ctx.fillRect(s.x, s.y, size, size);
-  }
-  requestAnimationFrame(draw);
-}
-draw();
-
-let audioCtx;
-function engine(){
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = "sawtooth";
-  osc.frequency.value = 50;
-  gain.gain.value = 0.02;
-  osc.connect(gain);
-  gain.connect(audioCtx.destination);
-  osc.start();
-  let i = 0;
-  const t = setInterval(() => {
-    i++;
-    osc.frequency.value = 50 + i*10;
-    gain.gain.value = 0.02 + i*0.006;
-    if(i > 25){ clearInterval(t); osc.stop(); }
-  }, 100);
-}
-
-const hud = document.getElementById("hud");
-const rocket = document.getElementById("rocket");
-const flame = document.getElementById("flame");
-const flash = document.getElementById("flash");
-const ring = document.getElementById("ring");
-document.body.style.overflow = "hidden";
-
-setTimeout(()=>engine(), 500);
-let count = 3;
-
-const timer = setInterval(() => {
-  count--;
-  if(count > 0){ hud.innerText = count; }
-  if(count === 0){
-    hud.innerText = "IGNITION";
-    document.body.classList.add("shake");
-    warp = true;
-    flash.style.opacity = 0.7;
-    ring.style.transition = "0.8s ease-out";
-    ring.style.opacity = 1;
-    ring.style.width = "400px";
-    ring.style.height = "400px";
-    ring.style.bottom = "120px";
-  }
-  if(count < 0){
-    clearInterval(timer);
-    hud.style.opacity = 0;
-    let pos = 0;
-    let velocity = 0;
-    const accel = 0.35;
-    function launch(){
-      velocity += accel;
-      pos += velocity;
-      speedBoost = velocity * 2;
-      rocket.style.transform = `translate(-50%, ${-pos}px)`;
-      flame.style.transform = `translate(-50%, ${-pos}px) scale(${1 + velocity/4})`;
-      if(pos > innerHeight * 1.2) end();
-      else requestAnimationFrame(launch);
-    }
-    launch();
-    setTimeout(()=>{ flash.style.opacity = 0; }, 200);
-  }
-}, 1000);
-
-function end(){
-  document.body.classList.remove("shake");
-  const intro = document.getElementById("intro");
-  intro.style.transition = "1.2s ease";
-  intro.style.opacity = "0";
-  setTimeout(()=>{
-    intro.style.display = "none";
-    document.body.style.overflow = "auto";
-  }, 1200);
-}
-
-addEventListener("resize", ()=>{
-  canvas.width = innerWidth;
-  canvas.height = innerHeight;
-});
+(function(){
+'use strict';
+const bgC=document.getElementById('bg'), C=document.getElementById('main');
+const bgX=bgC.getContext('2d'), ctx=C.getContext('2d');
+let W,H,CX,groundY,rocketBaseY; let running=true,lastT=0,rocketY=0,launchSpeed=0,flame=0,shake=0,isLaunched=false;
+const particles=[];
+function resize(){W=bgC.width=C.width=innerWidth;H=bgC.height=C.height=innerHeight;CX=W/2;groundY=H*0.82;rocketBaseY=groundY;drawBackground();}
+addEventListener('resize',resize);
+const stars=[]; function initStars(){stars.length=0;for(let i=0;i<700;i++)stars.push({x:Math.random()*W,y:Math.random()*H*0.85,r:Math.random()*1.4+0.2,a:Math.random()*0.7+0.3,tw:Math.random()*6.28});}
+function drawBackground(){const g=bgX.createLinearGradient(0,0,0,H);g.addColorStop(0,'#000005');g.addColorStop(1,'#0a0a00');bgX.fillStyle=g;bgX.fillRect(0,0,W,H);initStars();stars.forEach(s=>{bgX.beginPath();bgX.arc(s.x,s.y,s.r,0,6.28);bgX.fillStyle=`rgba(255,255,255,${s.a})`;bgX.fill();});bgX.fillStyle='#0d1208';bgX.fillRect(0,groundY-2,W,H-groundY+2);}
+function drawRocket(cx,baseY){ctx.save();ctx.translate(cx,baseY);const rw=W*0.038,rh=H*0.34;ctx.fillStyle='#ddd';ctx.beginPath();ctx.moveTo(-rw,0);ctx.lineTo(-rw,-rh*0.72);ctx.lineTo(0,-rh);ctx.lineTo(rw,-rh*0.72);ctx.lineTo(rw,0);ctx.closePath();ctx.fill();ctx.fillStyle='#222';ctx.beginPath();ctx.moveTo(-rw*0.5,-rh*0.72);ctx.quadraticCurveTo(0,-rh,rw*0.5,-rh*0.72);ctx.closePath();ctx.fill();ctx.fillStyle='#cc2200';ctx.fillRect(-rw,-rh*0.52,rw*2,rh*0.02);ctx.fillStyle='#9cf';ctx.beginPath();ctx.arc(0,-rh*0.58,rw*0.28,0,6.28);ctx.fill();ctx.restore();}
+function spawnFlame(x,y,intensity){for(let i=0;i<Math.floor(intensity*12);i++)particles.push({x,y,vx:(Math.random()-.5)*2,vy:2+Math.random()*6,size:W*0.006+Math.random()*W*0.01,life:.5+Math.random()*.6,max:.9});}
+function render(ts){if(!running)return;requestAnimationFrame(render);const dt=Math.min((ts-lastT)/1000,.05);lastT=ts;ctx.save();ctx.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);ctx.clearRect(-30,-30,W+60,H+60);ctx.drawImage(bgC,0,0);const by=rocketBaseY-rocketY;if(flame>0.05)spawnFlame(CX,by+H*0.01,flame);for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.life-=dt;if(p.life<=0){particles.splice(i,1);continue;}p.x+=p.vx;p.y+=p.vy;ctx.globalAlpha=p.life/p.max;const rg=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size);rg.addColorStop(0,'rgba(255,240,180,.9)');rg.addColorStop(1,'transparent');ctx.fillStyle=rg;ctx.beginPath();ctx.arc(p.x,p.y,p.size,0,6.28);ctx.fill();}ctx.globalAlpha=1;drawRocket(CX,by);ctx.restore();if(isLaunched){launchSpeed+=dt*H*0.18;rocketY+=launchSpeed*dt;}}
+resize(); requestAnimationFrame(render); document.body.style.overflow='hidden';
+const nameEl=document.getElementById('name'), tagEl=document.getElementById('tag'), cdEl=document.getElementById('cd'), flashEl=document.getElementById('flash'), pf=document.getElementById('pf'), intro=document.getElementById('intro');
+gsap.to(pf,{width:'100%',duration:10.5,ease:'linear'});
+const tl=gsap.timeline();
+tl.call(()=>gsap.to(nameEl,{opacity:1,duration:1}),[],0.3);
+tl.call(()=>gsap.to(tagEl,{opacity:1,duration:.8}),[],1.2);
+tl.call(()=>{cdEl.textContent='T-3';gsap.fromTo(cdEl,{opacity:0,scale:1.4},{opacity:1,scale:1,duration:.3});},[],2.0);
+tl.call(()=>{cdEl.textContent='T-2';shake=5;flame=.25;},[],3.1);
+tl.call(()=>{cdEl.textContent='T-1';shake=11;flame=.6;},[],4.1);
+tl.call(()=>{cdEl.textContent='IGNITION';shake=24;flame=1.0;gsap.to(flashEl,{opacity:.9,duration:.04,yoyo:true,repeat:1});},[],5.0);
+tl.call(()=>{gsap.to(cdEl,{opacity:0,y:-30,duration:.4});isLaunched=true;launchSpeed=H*0.01;gsap.to({v:1},{v:1.5,duration:3,onUpdate:function(){flame=this.targets()[0].v;}});},[],5.5);
+tl.call(()=>{isLaunched=false;flame=0;gsap.to('#ui',{opacity:0,duration:1.2});gsap.to('#outro',{opacity:1,duration:1.2,delay:.4});},[],9.0);
+tl.call(()=>{running=false;intro.style.transition='1s ease';intro.style.opacity='0';setTimeout(()=>{intro.style.display='none';document.body.style.overflow='auto';},1000);},[],11.0);
+})();
 </script>
 
 <!-- Scroll progress bar -->
@@ -1220,9 +1162,9 @@ addEventListener("resize", ()=>{
     </div>
     <a href="mailto:nishadathalye24@gmail.com" class="btn-primary reveal" style="display:inline-flex;margin-top:1rem;">▶ Transmit Message</a>
     <div class="contact-socials reveal">
-      <a href="https://github.com/Nishad-python" target="_blank" class="social-link">GitHub</a>
-      <a href="#" class="social-link">LinkedIn</a>
-      <a href="#" class="social-link">Instagram</a>
+      <a href="https://github.com/Nishad-python" target="_blank" rel="noopener" class="social-link">GitHub</a>
+      <a href="https://www.linkedin.com/in/nishad-athalye-a2991b246?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener" class="social-link">LinkedIn</a>
+      <a href="https://www.instagram.com/nishad60000?igsh=MW80ZmdtNGY3YW1x" target="_blank" rel="noopener" class="social-link">Instagram</a>
     </div>
   </div>
 </section>
