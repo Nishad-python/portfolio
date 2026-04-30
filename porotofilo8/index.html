@@ -737,14 +737,16 @@ body::after{
   <video id="intro-video" autoplay muted playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
     <source src="files/Video%20Project.mp4" type="video/mp4">
   </video>
-  <div id="intro-vignette" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent 45%,rgba(0,0,0,0.45));pointer-events:none;"></div>
-  <div id="intro-welcome" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:clamp(1.1rem,3vw,2rem);letter-spacing:.2em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .9s ease;text-shadow:0 0 18px rgba(255,255,255,.5);pointer-events:none;">Welcome to my website</div>
+  <div id="intro-vignette" style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75),transparent 45%,rgba(0,0,0,0.55));pointer-events:none;"></div>
+  <div id="intro-fade" style="position:absolute;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity 1.8s ease;"></div>
+  <div id="intro-welcome" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:clamp(1.1rem,3vw,2rem);letter-spacing:.2em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity 1.4s ease;text-shadow:0 0 22px rgba(255,255,255,.65);pointer-events:none;">Welcome to my website</div>
 </div>
 <script>
 (function(){
   const overlay = document.getElementById('video-intro');
   const video = document.getElementById('intro-video');
   const welcome = document.getElementById('intro-welcome');
+  const fadeLayer = document.getElementById('intro-fade');
   if(!overlay || !video){ return; }
   document.body.style.overflow = 'hidden';
   let finished = false;
@@ -752,15 +754,16 @@ body::after{
   function endIntro(){
     if(finished) return;
     finished = true;
+    if(fadeLayer) fadeLayer.style.opacity = '0.72';
     if(welcome) welcome.style.opacity = '1';
     setTimeout(()=>{
-      overlay.style.transition = 'opacity 1.1s ease';
+      overlay.style.transition = 'opacity 1.6s ease';
       overlay.style.opacity = '0';
       setTimeout(()=>{
         overlay.remove();
         document.body.style.overflow = 'auto';
-      }, 1200);
-    }, 900);
+      }, 1700);
+    }, 1300);
   }
 
   video.addEventListener('ended', endIntro);
