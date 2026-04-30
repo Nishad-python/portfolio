@@ -765,6 +765,12 @@ body::after{
 
 <script>
 (function(){
+  const overlay  = document.getElementById('dock-overlay');
+  const canvas   = document.getElementById('dock-canvas');
+  const ctx      = canvas.getContext('2d');
+  const chatterEl = document.getElementById('dock-chatter');
+  document.body.style.overflow = 'hidden';
+
   let W, H;
   let t = 0;
   let done = false;
