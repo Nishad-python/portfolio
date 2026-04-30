@@ -520,6 +520,45 @@ nav.scrolled{
   color:var(--muted);text-decoration:none;transition:color .3s,text-shadow .3s;
 }
 .social-link:hover{color:var(--neon);text-shadow:0 0 8px var(--neon);}
+.contact-form-wrap{
+  max-height:0; opacity:0; overflow:hidden;
+  transition:max-height .45s ease, opacity .35s ease, margin-top .35s ease;
+  margin-top:0;
+}
+.contact-form-wrap.open{max-height:420px; opacity:1; margin-top:1.2rem;}
+.contact-form{
+  border:1px solid var(--border);
+  background:rgba(3,4,10,0.72);
+  padding:1rem;
+  display:flex; flex-direction:column; gap:.7rem;
+}
+.contact-form input,.contact-form textarea{
+  width:100%;
+  background:rgba(0,245,255,0.03);
+  border:1px solid var(--border);
+  color:var(--text);
+  padding:.7rem .8rem;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.72rem;
+  letter-spacing:.04em;
+}
+.contact-form input:focus,.contact-form textarea:focus{
+  outline:none;
+  border-color:var(--neon);
+  box-shadow:0 0 0 1px rgba(0,245,255,0.25);
+}
+.contact-form .form-submit{
+  align-self:flex-start;
+  background:transparent;
+  border:1px solid var(--neon);
+  color:var(--neon);
+  padding:.6rem 1rem;
+  font-family:'Share Tech Mono',monospace;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.contact-form .form-submit:hover{background:var(--neon); color:var(--void);}
 
 /* ===== FOOTER ===== */
 footer{
@@ -1169,7 +1208,18 @@ body::after{
       <a href="tel:+919819304749" class="contact-item">⟐ +91 98193 04749</a>
       <span class="contact-item">⟐ Mumbai, India · 19.0760°N 72.8777°E</span>
     </div>
-    <a href="mailto:nishadathalye24@gmail.com" class="btn-primary reveal" style="display:inline-flex;margin-top:1rem;">▶ Transmit Message</a>
+    <button id="transmit-toggle" class="btn-primary reveal" style="display:inline-flex;margin-top:1rem;border:none;">▶ Transmit Message</button>
+    <div id="contact-form-wrap" class="contact-form-wrap reveal">
+      <form class="contact-form" action="https://formsubmit.co/nishadathalye24@gmail.com" method="POST">
+        <input type="hidden" name="_subject" value="New portfolio contact form message">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_template" value="table">
+        <input type="text" name="user_name" placeholder="Your Name" required>
+        <input type="email" name="user_email" placeholder="Your Email" required>
+        <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+        <button type="submit" class="form-submit">Send Message</button>
+      </form>
+    </div>
     <div class="contact-socials reveal">
       <a href="https://github.com/Nishad-python" target="_blank" rel="noopener" class="social-link">GitHub</a>
       <a href="https://www.linkedin.com/in/nishad-athalye-a2991b246?utm_source=share_via&utm_content=profile&utm_medium=member_android" target="_blank" rel="noopener" class="social-link">LinkedIn</a>
@@ -1933,6 +1983,22 @@ document.querySelectorAll('.skill-card').forEach(c=>skillBarObs.observe(c));
   const cur = document.createElement('span');
   cur.className='typing-cursor';
   setTimeout(()=>{ el.appendChild(cur); setTimeout(()=>cur.remove(),4000); },1200);
+})();
+
+/* ===== CONTACT FORM TOGGLE ===== */
+(function(){
+  const toggleBtn = document.getElementById('transmit-toggle');
+  const formWrap = document.getElementById('contact-form-wrap');
+  if(!toggleBtn || !formWrap) return;
+  toggleBtn.addEventListener('click', (e)=>{
+    e.preventDefault();
+    formWrap.classList.toggle('open');
+    if(formWrap.classList.contains('open')){
+      toggleBtn.textContent = '▶ Close Message Form';
+    }else{
+      toggleBtn.textContent = '▶ Transmit Message';
+    }
+  });
 })();
 </script>
 </body>
