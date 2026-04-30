@@ -411,7 +411,7 @@ nav.scrolled{
 /* Project list rows */
 .projects-list{display:flex;flex-direction:column;}
 .project-row{
-  display:grid;grid-template-columns:80px 1fr auto;
+  display:grid;grid-template-columns:80px 140px 1fr auto;
   align-items:center;gap:3rem;
   padding:2.2rem 0;border-bottom:1px solid var(--border);
   cursor:pointer;transition:background .3s;position:relative;
@@ -434,6 +434,16 @@ nav.scrolled{
   display:flex;align-items:center;gap:1rem;letter-spacing:0.02em;
 }
 .project-row:hover .proj-name{color:var(--neon);text-shadow:0 0 12px rgba(0,245,255,0.4);}
+.proj-thumb{
+  width:140px;height:90px;overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--void3);
+}
+.proj-thumb img{
+  width:100%;height:100%;object-fit:cover;display:block;opacity:.9;
+  transition:transform .4s,opacity .3s;
+}
+.project-row:hover .proj-thumb img{transform:scale(1.05);opacity:1;}
 .proj-tag{
   font-family:'Share Tech Mono',monospace;font-size:0.55rem;
   letter-spacing:0.1em;text-transform:uppercase;
@@ -669,6 +679,7 @@ body::after{
   .projects{padding:5rem 1.5rem;}
   .project-row{grid-template-columns:1fr;gap:1rem;}
   .proj-num{display:none;}
+  .proj-thumb{width:100%;height:180px;}
   .project-featured{grid-template-columns:1fr;}
   .contact{padding:6rem 1.5rem;}
   footer{flex-direction:column;gap:1rem;text-align:center;padding:2rem;}
@@ -707,6 +718,15 @@ body::after{
         WASD / ARROWS — THRUST &nbsp;·&nbsp; Q/E — ROTATE &nbsp;·&nbsp; ALIGN WITH PORT TO DOCK
       </div>
     </div>
+
+    <div id="dock-chatter" style="
+      position:absolute;bottom:5rem;left:50%;transform:translateX(-50%);
+      background:rgba(0,10,20,.82);border:1px solid rgba(0,245,255,.25);
+      padding:.55rem .9rem;font-size:.58rem;letter-spacing:.12em;
+      color:#00f5ff;text-transform:uppercase;opacity:0;
+      transition:opacity .3s ease, transform .3s ease;
+      font-family:'Share Tech Mono',monospace;white-space:nowrap;
+    "></div>
 
     <!-- Telemetry panel LEFT -->
     <div style="position:absolute;left:2rem;top:50%;transform:translateY(-50%);font-size:.58rem;letter-spacing:.1em;color:rgba(0,245,255,.35);line-height:2.2;text-transform:uppercase;">
@@ -748,6 +768,8 @@ body::after{
   const overlay  = document.getElementById('dock-overlay');
   const canvas   = document.getElementById('dock-canvas');
   const ctx      = canvas.getContext('2d');
+  const chatterEl = document.getElementById('dock-chatter');
+  document.body.style.overflow = 'hidden';
 
   let W, H;
   function resize(){
@@ -772,6 +794,27 @@ body::after{
   // ── ISS definition ─────────────────────────────────────
   const ISS = { x:0, y:0, angle: 0 };
   const DOCK_RADIUS = 18; // px — how close + aligned you must be
+  const CHATTER = [
+    'HOUSTON: NISHAD, YOU ARE GO FOR APPROACH.',
+    'CAPCOM: VELOCITY LOOKS NOMINAL. WATCH YOUR YAW.',
+    'ISS: DOCKING CLAMPS ARE ARMED. BRING HER IN.',
+    'HOUSTON: 50 METERS. SPEED BELOW 0.5 M/S.',
+    'CAPCOM: YOU ARE IN THE CONE. LOCK IS IMMINENT.'
+  ];
+  let chatterIdx = 0;
+  let lastChatterT = 0;
+
+  function showChatter(text){
+    if(!chatterEl) return;
+    chatterEl.textContent = '▶ ' + text;
+    chatterEl.style.opacity = '1';
+    chatterEl.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(showChatter._timer);
+    showChatter._timer = setTimeout(()=>{
+      chatterEl.style.opacity = '0';
+      chatterEl.style.transform = 'translateX(-50%) translateY(12px)';
+    }, 3000);
+  }
 
   function drawISS(){
     ctx.save();
@@ -997,7 +1040,10 @@ body::after{
     setTimeout(()=>{
       overlay.style.transition = 'opacity 1.2s ease';
       overlay.style.opacity = '0';
-      setTimeout(()=>{ overlay.remove(); }, 1300);
+      setTimeout(()=>{
+        overlay.remove();
+        document.body.style.overflow = '';
+      }, 1300);
     }, 2300);
   }
 
@@ -1093,6 +1139,12 @@ body::after{
     physics();
     const portInfo = checkDock();
     if(portInfo.inRange && portInfo.aligned && !docked) spawnSparks();
+
+    if((t - lastChatterT) > 8 && chatterIdx < CHATTER.length){
+      showChatter(CHATTER[chatterIdx]);
+      chatterIdx++;
+      lastChatterT = t;
+    }
 
     drawGuides(portInfo);
     drawSparks();
@@ -1266,7 +1318,7 @@ body::after{
     <div class="about-right reveal">
       <div class="about-photo-frame">
         <div class="about-photo-glow"></div>
-        <img src="https://nishadportforlio.vercel.app/porotofilo8/images/profile.png"
+        <img src="images/profile.png"
              alt="Nishad Athalye" class="about-photo"
              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         <div style="display:none;width:100%;aspect-ratio:4/5;background:var(--void3);border:1px solid var(--border);align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:1.1rem;color:var(--muted);letter-spacing:0.1em;">NISHAD ATHALYE</div>
@@ -1297,7 +1349,7 @@ body::after{
     <!-- Featured -->
     <div class="project-featured reveal">
       <div class="proj-feat-img">
-        <img src="https://nishadportforlio.vercel.app/porotofilo8/images/global-peace-dashboard.png"
+        <img src="images/global-peace-dashboard.png"
              alt="Global Peace Dashboard"
              onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=proj-feat-img-fallback>GLOBAL PEACE DASHBOARD</div>';">
       </div>
@@ -1322,6 +1374,9 @@ body::after{
     <div class="projects-list" style="margin-top:1.5px;">
       <a href="https://nishadportforlio.vercel.app/porotofilo8/files/MOSFET_ML_Paper_FINAL.pdf" target="_blank" class="project-row reveal">
         <div class="proj-num">02</div>
+        <div class="proj-thumb">
+          <img src="images/rp.jpg" alt="MOSFET ML Research Paper">
+        </div>
         <div class="proj-main">
           <div class="proj-name">MOSFET ML Research Paper <span class="proj-tag">Research</span></div>
           <div class="proj-desc">Exploring machine learning approaches for MOSFET analysis and performance modeling — bridging AI with semiconductor hardware research.</div>
@@ -1339,6 +1394,9 @@ body::after{
 
       <a href="https://wt-untoched.vercel.app/login.html" target="_blank" class="project-row reveal">
         <div class="proj-num">03</div>
+        <div class="proj-thumb">
+          <img src="images/wt img .png" alt="Student Mentoring System">
+        </div>
         <div class="proj-main">
           <div class="proj-name">Student Mentoring System <span class="proj-tag">Web App</span></div>
           <div class="proj-desc">One-to-one mentoring platform enabling teachers to guide students with structured tracking and session management.</div>
@@ -1359,6 +1417,9 @@ body::after{
 
       <div class="project-row reveal">
         <div class="proj-num">04</div>
+        <div class="proj-thumb">
+          <img src="images/finance.png" alt="The Financial Gearbox">
+        </div>
         <div class="proj-main">
           <div class="proj-name">The Financial Gearbox <span class="proj-tag">Finance</span></div>
           <div class="proj-desc">Automated Budget Allocation System applying mechanical and automation principles to personal finance management.</div>
